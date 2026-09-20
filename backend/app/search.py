@@ -103,16 +103,18 @@ def keyword_score(query, text):
 # Source filtering
 # --------------------------------------------------
 
-def filter_sources(results, top_k=5, relative_threshold=0.90):
+def filter_sources(
+    results,
+    top_k=5,
+    relative_threshold=0.90,
+    minimum_score=0.45
+):
     """
-    Keep only results whose final relevance score is
-    sufficiently close to the best result.
+    Keep only results that are sufficiently relevant.
 
-    This prevents weakly related chunks from being
-    passed to the LLM or shown as sources.
-
-    The threshold is relative to the strongest result,
-    so it does not depend on a fixed score range.
+    A result must:
+    1. Reach the minimum relevance score.
+    2. Be reasonably close to the strongest result.
     """
 
     if not results:
@@ -120,16 +122,18 @@ def filter_sources(results, top_k=5, relative_threshold=0.90):
 
     best_score = results[0]["score"]
 
-    threshold = best_score * relative_threshold
+    relative_cutoff = best_score * relative_threshold
 
     filtered_results = [
         result
         for result in results
-        if result["score"] >= threshold
+        if (
+            result["score"] >= minimum_score
+            and result["score"] >= relative_cutoff
+        )
     ]
 
     return filtered_results[:top_k]
-
 
 # --------------------------------------------------
 # Main search
