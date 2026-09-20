@@ -1,8 +1,4 @@
 Running the Project Locally
-
-#. Install requirements
-pip install -r requirements.txt
-
 1. Install frontend dependencies
 cd frontend
 npm install
