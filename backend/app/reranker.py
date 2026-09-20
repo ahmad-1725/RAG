@@ -1,5 +1,6 @@
 from sentence_transformers import CrossEncoder
 
+
 MODEL_NAME = "BAAI/bge-reranker-base"
 
 model = CrossEncoder(MODEL_NAME)
@@ -20,7 +21,6 @@ def rerank_chunks(query, chunks, top_k=5):
 
     for chunk, score in zip(chunks, scores):
         result = chunk.copy()
-
         result["rerank_score"] = float(score)
 
         results.append(result)
@@ -30,9 +30,4 @@ def rerank_chunks(query, chunks, top_k=5):
         reverse=True
     )
 
-    results = results[:top_k]
-
-    for index, result in enumerate(results, start=1):
-        result["source_id"] = index
-
-    return results
+    return results[:top_k]

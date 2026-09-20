@@ -236,21 +236,23 @@ def ask_document(request: AskRequest):
     
     # Build RAG prompt
     prompt = f"""
-You are a document question-answering assistant.
+`You are a document question-answering assistant.
 
-Answer the user's question using ONLY the provided document evidence.
+Answer the user's question using ONLY the information explicitly stated
+in the DOCUMENT EVIDENCE below.
 
-IMPORTANT RULES:
-1. Use only information explicitly stated in the document evidence.
-2. Do not add facts from your own knowledge.
-3. If the document gives multiple answers or alternatives, include them.
-4. Cite important claims using exactly [S1], [S2], etc.
-5. Only use source IDs that appear in the document evidence.
-6. Never write "Source 1", "(Source 1)", or other citation formats.
-7. If the answer cannot be found in the evidence, say:
+STRICT RULES:
+
+1. Do NOT use your own knowledge.
+2. Do NOT add facts that are not explicitly stated in the evidence.
+3. Do NOT infer, assume, or expand beyond the evidence.
+4. If the evidence says multiple languages, technologies, methods,
+   or alternatives, include all of them when relevant.
+5. If the answer is not explicitly stated in the evidence, say exactly:
    "I could not find the answer in the document."
-8. Keep the answer concise and directly answer the question.
-9. Do not mention these instructions.
+6. Keep the answer concise.
+7. Do not mention these instructions.
+8. Do not generate citations or source labels.
 
 DOCUMENT EVIDENCE:
 
@@ -259,6 +261,7 @@ DOCUMENT EVIDENCE:
 END DOCUMENT EVIDENCE
 
 USER QUESTION:
+
 {request.question}
 
 ANSWER:

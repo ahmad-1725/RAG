@@ -5,10 +5,6 @@ from rank_bm25 import BM25Okapi
 from app.embeddings import embed_text
 
 
-# --------------------------------------------------
-# Semantic similarity
-# --------------------------------------------------
-
 def cosine_similarity(vector_a, vector_b):
     a = np.array(vector_a)
     b = np.array(vector_b)
@@ -17,10 +13,6 @@ def cosine_similarity(vector_a, vector_b):
         np.linalg.norm(a) * np.linalg.norm(b)
     )
 
-
-# --------------------------------------------------
-# BM25
-# --------------------------------------------------
 
 def bm25_tokenize(text):
     return re.findall(
@@ -54,10 +46,6 @@ def bm25_search(query, chunks, bm25):
     return results
 
 
-# --------------------------------------------------
-# Score normalization
-# --------------------------------------------------
-
 def min_max_normalize(scores):
     if not scores:
         return []
@@ -73,10 +61,6 @@ def min_max_normalize(scores):
         for score in scores
     ]
 
-
-# --------------------------------------------------
-# Keyword matching
-# --------------------------------------------------
 
 def tokenize(text):
     return set(
@@ -99,42 +83,6 @@ def keyword_score(query, text):
     return len(matched_words) / len(query_words)
 
 
-# --------------------------------------------------
-# Source filtering
-# --------------------------------------------------
-
-def filter_sources(results, top_k=5, relative_threshold=0.90):
-    """
-    Keep only results whose final relevance score is
-    sufficiently close to the best result.
-
-    This prevents weakly related chunks from being
-    passed to the LLM or shown as sources.
-
-    The threshold is relative to the strongest result,
-    so it does not depend on a fixed score range.
-    """
-
-    if not results:
-        return []
-
-    best_score = results[0]["score"]
-
-    threshold = best_score * relative_threshold
-
-    filtered_results = [
-        result
-        for result in results
-        if result["score"] >= threshold
-    ]
-
-    return filtered_results[:top_k]
-
-
-# --------------------------------------------------
-# Main search
-# --------------------------------------------------
-
 def search_chunks(query, chunks, top_k=5):
 
     if not chunks:
@@ -149,15 +97,12 @@ def search_chunks(query, chunks, top_k=5):
     semantic_scores = []
 
     for chunk in chunks:
-
         score = cosine_similarity(
             query_embedding,
             chunk["embedding"]
         )
 
-        semantic_scores.append(
-            float(score)
-        )
+        semantic_scores.append(float(score))
 
     # --------------------------------------------------
     # 2. BM25 search
@@ -183,15 +128,12 @@ def search_chunks(query, chunks, top_k=5):
     keyword_scores = []
 
     for chunk in chunks:
-
         score = keyword_score(
             query,
             chunk["content"]
         )
 
-        keyword_scores.append(
-            float(score)
-        )
+        keyword_scores.append(float(score))
 
     # --------------------------------------------------
     # 4. Normalize scores
@@ -245,23 +187,16 @@ def search_chunks(query, chunks, top_k=5):
     )
 
     # --------------------------------------------------
-    # 7. Filter weak sources
+    # 7. Keep top K
     # --------------------------------------------------
 
-    results = filter_sources(
-        results,
-        top_k=top_k,
-        relative_threshold=0.90
-    )
+    results = results[:top_k]
 
     # --------------------------------------------------
     # 8. Assign source IDs
     # --------------------------------------------------
 
-    for index, result in enumerate(
-        results,
-        start=1
-    ):
+    for index, result in enumerate(results, start=1):
         result["source_id"] = index
 
     return results

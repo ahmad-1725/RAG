@@ -6,11 +6,14 @@ MODEL_NAME = "all-MiniLM-L6-v2"
 model = SentenceTransformer(MODEL_NAME)
 
 
-def embed_text(text: str):
-    """
-    Convert text into a numerical embedding vector.
-    """
+def build_embedding_text(chunk):
+    return (
+        f"Section: {chunk['section_title']}\n\n"
+        f"{chunk['content']}"
+    )
 
+
+def embed_text(text: str):
     return model.encode(
         text,
         normalize_embeddings=True
@@ -18,11 +21,10 @@ def embed_text(text: str):
 
 
 def embed_chunks(chunks):
-    """
-    Generate embeddings for all document chunks.
-    """
-
-    texts = [chunk["content"] for chunk in chunks]
+    texts = [
+        build_embedding_text(chunk)
+        for chunk in chunks
+    ]
 
     embeddings = model.encode(
         texts,
