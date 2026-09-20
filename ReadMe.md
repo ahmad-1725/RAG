@@ -177,7 +177,7 @@ Make sure the following are installed:
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/ahmad-1725/RAG
 cd RAG
 ```
 
@@ -207,21 +207,6 @@ Install the Python dependencies:
 pip install -r requirements.txt
 ```
 
-### 3. Set up PostgreSQL
-
-Create a PostgreSQL database for the application.
-
-For example:
-
-```sql
-CREATE DATABASE rag_document_assistant;
-```
-
-Connect to the database and enable pgvector:
-
-```sql
-CREATE EXTENSION vector;
-```
 
 The database will be used to store:
 
