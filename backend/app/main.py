@@ -5,7 +5,7 @@ from app.documents import router as documents_router
 
 
 app = FastAPI(
-    title="Document AI",
+    title="DocLens",
     description="AI-powered document exploration and search platform",
     version="0.1.0"
 )
@@ -38,5 +38,5 @@ app.include_router(documents_router)
 def root():
     return {
         "status": "online",
-        "message": "Document AI API is running"
+        "message": "DocLens API is running"
     }

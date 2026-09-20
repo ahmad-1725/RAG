@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://127.0.0.1:8000";
 
+function Styles() {
+  return <style>{css}</style>;
+}
+
 function App() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +78,7 @@ function App() {
       setDocuments(response.data.documents);
     } catch (err) {
       console.error(err);
-      setError("Could not connect to the Document AI backend.");
+      setError("Could not connect to the DocLens backend.");
     } finally {
       setLoading(false);
     }
@@ -85,13 +89,33 @@ function App() {
   }, []);
 
   return (
-    <div style={styles.app}>
-      <header style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Document AI</h1>
-          <p style={styles.subtitle}>
-            Explore, search, and ask questions about your documents.
-          </p>
+    <div className="dlh-root">
+      <Styles />
+
+      <header className="dlh-header">
+        <div className="dlh-brand">
+          <div className="dlh-brand-mark" aria-hidden="true">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.5" y1="16.5" x2="21" y2="21" />
+            </svg>
+          </div>
+
+          <div>
+            <h1 className="dlh-title">DocLens</h1>
+            <p className="dlh-subtitle">
+              Explore, search, and ask questions about your documents.
+            </p>
+          </div>
         </div>
         <>
           <input
@@ -105,51 +129,102 @@ function App() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            style={styles.uploadButton}
+            className="dlh-upload-button"
           >
+            {uploading ? (
+              <span className="dlh-spinner" aria-hidden="true" />
+            ) : (
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            )}
             {uploading ? "Processing..." : "Upload PDF"}
           </button>
-        </>{" "}
+        </>
       </header>
 
-      <main style={styles.main}>
-        <div style={styles.sectionHeader}>
+      <main className="dlh-main">
+        <div className="dlh-section-header">
           <div>
-            <h2 style={styles.heading}>Your Documents</h2>
-            <p style={styles.description}>
-              Documents processed by the Document AI system.
+            <h2 className="dlh-heading">Your Documents</h2>
+            <p className="dlh-description">
+              Documents processed by the DocLens system.
             </p>
           </div>
 
-          <button onClick={fetchDocuments} style={styles.refreshButton}>
+          <button onClick={fetchDocuments} className="dlh-refresh-button">
             Refresh
           </button>
         </div>
 
-        {loading && <div style={styles.message}>Loading documents...</div>}
+        {loading && (
+          <div className="dlh-message" role="status">
+            <span className="dlh-spinner dlh-spinner-accent" aria-hidden="true" />
+            Loading documents...
+          </div>
+        )}
 
-        {uploadError && <div style={styles.error}>{uploadError}</div>}
-        
+        {uploadError && (
+          <div className="dlh-alert" role="alert">
+            {uploadError}
+          </div>
+        )}
+
+        {error && (
+          <div className="dlh-alert" role="alert">
+            {error}
+          </div>
+        )}
+
         {!loading && !error && documents.length === 0 && (
-          <div style={styles.empty}>
+          <div className="dlh-empty">
+            <div className="dlh-empty-icon" aria-hidden="true">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 3 14 8 19 8" />
+                <line x1="9" y1="13" x2="15" y2="13" />
+                <line x1="9" y1="17" x2="13" y2="17" />
+              </svg>
+            </div>
             <h3>No documents yet</h3>
             <p>Upload a PDF to start exploring it.</p>
           </div>
         )}
 
-        <div style={styles.grid}>
+        <div className="dlh-grid">
           {documents.map((document) => (
-            <div key={document.document_id} style={styles.card}>
-              <div style={styles.icon}>PDF</div>
-              <h3 style={styles.filename}>{document.filename}</h3>
-              <div style={styles.stats}>
+            <div key={document.document_id} className="dlh-card">
+              <div className="dlh-icon">PDF</div>
+              <h3 className="dlh-filename">{document.filename}</h3>
+              <div className="dlh-stats">
                 <span>{document.page_count} pages</span>
                 <span>{document.section_count} sections</span>
                 <span>{document.chunk_count} chunks</span>
               </div>
               <button
                 onClick={() => navigate(`/documents/${document.document_id}`)}
-                style={styles.viewButton}
+                className="dlh-view-button"
               >
                 Open Document
               </button>
@@ -161,148 +236,362 @@ function App() {
   );
 }
 
-const styles = {
-  app: {
-    minHeight: "100vh",
-    background: "#f5f7fb",
-    color: "#172033",
-    fontFamily: "Arial, sans-serif",
-  },
+const css = `
+.dlh-root {
+  --ink: #142033;
+  --ink-2: #435063;
+  --ink-3: #66738a;
+  --line: #e1e5eb;
+  --line-2: #edf0f4;
+  --line-strong: #cfd6e0;
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --accent: #2456d6;
+  --accent-ink: #1b43a8;
+  --accent-tint: #eaf0fd;
+  --danger: #b42318;
+  --danger-tint: #fdeceb;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "28px 48px",
-    background: "#ffffff",
-    borderBottom: "1px solid #e5e7eb",
-  },
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
 
-  title: {
-    margin: 0,
-    fontSize: "30px",
-  },
+.dlh-root *,
+.dlh-root *::before,
+.dlh-root *::after {
+  box-sizing: border-box;
+}
 
-  subtitle: {
-    margin: "8px 0 0",
-    color: "#667085",
-  },
+.dlh-root button {
+  font-family: inherit;
+}
 
-  uploadButton: {
-    border: "none",
-    borderRadius: "8px",
-    padding: "12px 20px",
-    background: "#2563eb",
-    color: "#ffffff",
-    fontSize: "15px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
+.dlh-root :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
-  main: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "40px 32px",
-  },
+/* ---------- Header ---------- */
 
-  sectionHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "24px",
-  },
+.dlh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
 
-  heading: {
-    margin: 0,
-    fontSize: "24px",
-  },
+.dlh-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
 
-  description: {
-    marginTop: "6px",
-    color: "#667085",
-  },
+.dlh-brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #ffffff;
+}
 
-  refreshButton: {
-    padding: "9px 16px",
-    border: "1px solid #d0d5dd",
-    borderRadius: "7px",
-    background: "#ffffff",
-    cursor: "pointer",
-  },
+.dlh-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
 
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: "20px",
-  },
+.dlh-subtitle {
+  margin: 5px 0 0;
+  color: var(--ink-3);
+  font-size: 15px;
+}
 
-  card: {
-    background: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "12px",
-    padding: "22px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-  },
+.dlh-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
 
-  icon: {
-    width: "44px",
-    height: "44px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "8px",
-    background: "#eef2ff",
-    color: "#4338ca",
-    fontSize: "12px",
-    fontWeight: "700",
-  },
+.dlh-upload-button:hover:not(:disabled) {
+  background: var(--accent-ink);
+}
 
-  filename: {
-    margin: "18px 0 14px",
-    fontSize: "17px",
-    wordBreak: "break-word",
-  },
+.dlh-upload-button:disabled {
+  opacity: 0.8;
+  cursor: progress;
+}
 
-  stats: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-    color: "#667085",
-    fontSize: "14px",
-    marginBottom: "20px",
-  },
+/* ---------- Main ---------- */
 
-  viewButton: {
-    width: "100%",
-    padding: "10px",
-    border: "none",
-    borderRadius: "7px",
-    background: "#172033",
-    color: "#ffffff",
-    cursor: "pointer",
-  },
+.dlh-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+}
 
-  message: {
-    padding: "30px",
-    textAlign: "center",
-    color: "#667085",
-  },
+.dlh-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
-  error: {
-    padding: "16px",
-    borderRadius: "8px",
-    background: "#fef2f2",
-    color: "#b42318",
-    marginBottom: "20px",
-  },
+.dlh-heading {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
 
-  empty: {
-    padding: "60px 20px",
-    textAlign: "center",
-    background: "#ffffff",
-    borderRadius: "12px",
-    border: "1px dashed #d0d5dd",
-  },
-};
+.dlh-description {
+  margin: 6px 0 0;
+  color: var(--ink-3);
+  font-size: 15px;
+}
+
+.dlh-refresh-button {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.dlh-refresh-button:hover {
+  background: var(--bg);
+  border-color: #b8c1ce;
+}
+
+/* ---------- Spinner ---------- */
+
+.dlh-spinner {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: dlh-spin 0.75s linear infinite;
+}
+
+.dlh-spinner-accent {
+  color: var(--accent);
+}
+
+@keyframes dlh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- States ---------- */
+
+.dlh-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px;
+  color: var(--ink-3);
+  font-size: 15px;
+}
+
+.dlh-alert {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid #f4c7c3;
+  border-radius: 8px;
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dlh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 20px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.dlh-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+}
+
+.dlh-empty h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dlh-empty p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 15px;
+}
+
+/* ---------- Document cards ---------- */
+
+.dlh-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 20px;
+}
+
+.dlh-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dlh-card:hover {
+  border-color: #b9c6e8;
+  box-shadow: 0 6px 20px rgba(20, 32, 51, 0.08);
+}
+
+.dlh-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dlh-filename {
+  flex: 1;
+  margin: 16px 0 14px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.dlh-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.dlh-stats span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--line-2);
+  color: var(--ink-2);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.dlh-view-button {
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dlh-view-button:hover {
+  background: #26374f;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 720px) {
+  .dlh-header {
+    flex-wrap: wrap;
+    padding: 20px 16px;
+  }
+
+  .dlh-title {
+    font-size: 22px;
+  }
+
+  .dlh-subtitle {
+    font-size: 14px;
+  }
+
+  .dlh-upload-button {
+    width: 100%;
+  }
+
+  .dlh-main {
+    padding: 24px 16px 48px;
+  }
+
+  .dlh-section-header {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dlh-root *,
+  .dlh-root *::before,
+  .dlh-root *::after {
+    transition: none !important;
+  }
+
+  .dlh-spinner {
+    animation-duration: 2s;
+  }
+}
+`;
 
 export default App;
