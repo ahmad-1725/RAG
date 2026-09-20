@@ -1,194 +1,370 @@
-RAG Document Assistant
+# RAG Document Assistant
 
-A full-stack document question-answering application that allows users to upload and explore documents, navigate extracted sections, and ask questions based on the document's content.
+A full-stack **AI-powered document intelligence and question-answering application** that allows users to upload PDF documents, explore their structure, search document content, and ask questions using Retrieval-Augmented Generation (RAG).
 
-Features
+The project combines document structure extraction, semantic search, hybrid retrieval, vector embeddings, and a local LLM to provide context-aware answers with document sources.
 
-📄 Document processing and text extraction
+## Features
 
-🗂️ Structured document sections and table of contents
+* 📄 Upload and process PDF documents
+* 📝 Extract document text and structure
+* 🗂️ Automatically detect headings and sections
+* 📑 Generate an interactive table of contents
+* 🔎 Search document content using hybrid retrieval
+* 🧠 Generate vector embeddings for document chunks
+* 🤖 Ask questions about uploaded documents
+* 📚 Display sources used to generate answers
+* 📍 Navigate directly to relevant document sections
+* 💬 Local LLM-powered question answering
+* 🎨 Responsive React frontend
+* ⚡ FastAPI backend with automatic reload during development
 
-🔎 Navigate directly to document sections
+## Architecture
 
-🤖 Ask questions about a document using the AI assistant
+```text
+                    ┌─────────────────────┐
+                    │    React Frontend   │
+                    │                     │
+                    │ Upload / Search /   │
+                    │ Explore / Q&A       │
+                    └──────────┬──────────┘
+                               │
+                               │ HTTP / REST
+                               ▼
+                    ┌─────────────────────┐
+                    │    FastAPI Backend  │
+                    │                     │
+                    │ PDF Processing      │
+                    │ Structure Extraction│
+                    │ Chunking            │
+                    │ Embeddings          │
+                    │ Retrieval           │
+                    │ RAG Pipeline        │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    ▼                     ▼
+          ┌──────────────────┐   ┌──────────────────┐
+          │ PostgreSQL +     │   │ Local LLM        │
+          │ pgvector         │   │ Qwen             │
+          │                  │   │                  │
+          │ Documents        │   │ Answer Generation│
+          │ Sections         │   │                  │
+          │ Chunks           │   └──────────────────┘
+          │ Embeddings       │
+          └──────────────────┘
+```
 
-📚 View sources used to generate answers
+## RAG Pipeline
 
-🎨 Responsive React frontend
+When a user asks a question about a document, the system follows this general pipeline:
 
-⚡ FastAPI backend with automatic reload during development
+```text
+User Question
+      │
+      ▼
+Query Embedding
+      │
+      ▼
+Document Retrieval
+      │
+      ├── Semantic Search
+      ├── Keyword Search
+      └── BM25 Search
+      │
+      ▼
+Relevant Document Chunks
+      │
+      ▼
+Context Construction
+      │
+      ▼
+Local LLM
+      │
+      ▼
+Generated Answer
+      │
+      ▼
+Sources / Document References
+```
 
-Project Structure
+## Project Structure
+
+```text
 RAG/
 ├── backend/
 │   ├── app/
-│   │   └── ...
+│   │   ├── main.py
+│   │   ├── documents.py
+│   │   ├── structure.py
+│   │   ├── embeddings.py
+│   │   ├── search.py
+│   │   └── llm.py
+│   │
+│   ├── data/
+│   │   ├── uploads/
+│   │   └── extracted/
+│   │
 │   ├── requirements.txt
 │   └── ...
 │
 ├── frontend/
 │   ├── src/
+│   │   ├── App.jsx
+│   │   ├── DocumentViewer.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   │
 │   ├── public/
 │   ├── package.json
 │   └── ...
 │
 ├── .gitignore
 └── README.md
+```
 
-Tech Stack
-Frontend
+## Tech Stack
 
-React
+### Frontend
 
-React Router
+* React
+* React Router
+* Axios
+* Vite
+* JavaScript
 
-Axios
+### Backend
 
-Vite
+* Python
+* FastAPI
+* Uvicorn
+* PyMuPDF
+* Sentence Transformers
+* NumPy
+* Rank-BM25
 
-Backend
+### AI / RAG
 
-Python
+* Retrieval-Augmented Generation (RAG)
+* `all-MiniLM-L6-v2` for embeddings
+* Qwen3 1.7B
+* Ollama
+* Semantic search
+* BM25 keyword retrieval
+* Hybrid retrieval
 
-FastAPI
+### Database
 
-Uvicorn
+* PostgreSQL
+* pgvector
 
-Prerequisites
+> PostgreSQL + pgvector is used for persistent document data and vector storage.
 
-Make sure you have the following installed:
+## Prerequisites
 
-Python 3.x
+Make sure the following are installed:
 
-Node.js
+* Python 3.11+
+* Node.js
+* npm
+* Git
+* PostgreSQL
+* pgvector
+* Ollama
 
-npm
+## Installation
 
-Git
+### 1. Clone the repository
 
-Installation
-1. Clone the repository
+```bash
 git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd RAG
+```
 
-2. Install Python dependencies
+### 2. Set up the backend
 
 Navigate to the backend:
 
+```powershell
 cd backend
+```
 
+Create a virtual environment if you do not already have one:
 
-If you already have a virtual environment, activate it:
+```powershell
+python -m venv venv
+```
 
+Activate the virtual environment:
+
+```powershell
 .\venv\Scripts\Activate.ps1
+```
 
+Install the Python dependencies:
 
-Install the required Python packages:
-
+```powershell
 pip install -r requirements.txt
+```
 
-3. Install frontend dependencies
+### 3. Set up PostgreSQL
 
-Open a new terminal and navigate to the frontend:
-
-cd frontend
-npm install
-
-Running the Application
-
-The backend and frontend should be run in separate terminals.
-
-Backend
-
-From the project root:
-
-cd backend
-.\venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload
-
-
-The backend will run at:
-
-http://127.0.0.1:8000
-
-Frontend
-
-Open a second terminal:
-
-cd frontend
-npm run dev
-
-
-Vite will display the frontend URL in the terminal. It is typically:
-
-http://localhost:5173
-
-Development Workflow
-
-A typical development setup requires two running processes:
-
-Terminal 1 — Backend
-
-cd backend
-.\venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload
-
-
-Terminal 2 — Frontend
-
-cd frontend
-npm run dev
-
-
-Once both are running, open the frontend URL provided by Vite in your browser.
-
-Environment Variables
-
-If the project requires environment variables, create a .env file in the appropriate directory.
+Create a PostgreSQL database for the application.
 
 For example:
 
-API_KEY=your_api_key_here
+```sql
+CREATE DATABASE rag_document_assistant;
+```
 
+Connect to the database and enable pgvector:
 
-Do not commit .env files or API keys to GitHub.
+```sql
+CREATE EXTENSION vector;
+```
 
-Make sure sensitive files are included in .gitignore.
+The database will be used to store:
 
-Git
+* Documents
+* Sections
+* Chunks
+* Vector embeddings
+* Document metadata
 
-The repository uses the root directory as the Git repository.
+### 4. Set up Ollama
 
-The backend and frontend directories should not contain their own .git directories.
+Install Ollama and make sure the local Ollama server is running.
 
-Check the repository status with:
+Pull the required model:
 
-git status
+```powershell
+ollama pull qwen3:1.7b
+```
 
+Verify that the model is available:
 
-Add changes:
+```powershell
+ollama list
+```
 
-git add .
+## Running the Application
 
+The backend and frontend should be run in **separate terminals**.
 
-Commit:
+### Backend
 
-git commit -m "Describe your changes"
+From the project root:
 
+```powershell
+cd backend
+.\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload
+```
 
-Push:
+The backend will run at:
 
-git push
-
-API
-
-The frontend communicates with the FastAPI backend running locally at:
-
+```text
 http://127.0.0.1:8000
+```
+
+FastAPI's interactive API documentation is available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### Frontend
+
+Open a second terminal:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Vite will display the frontend URL in the terminal.
+
+Typically:
+
+```text
+http://localhost:5173
+```
+
+## Development Workflow
+
+A typical development setup requires two running processes.
+
+### Terminal 1 — Backend
+
+```powershell
+cd backend
+.\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload
+```
+
+### Terminal 2 — Frontend
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Once both processes are running, open the frontend URL provided by Vite.
+
+## Document Processing
+
+When a PDF is uploaded, the backend processes it through several stages:
+
+```text
+PDF Upload
+    │
+    ▼
+Text Extraction
+    │
+    ▼
+Heading Detection
+    │
+    ▼
+Section Construction
+    │
+    ▼
+Document Chunking
+    │
+    ▼
+Vector Embeddings
+    │
+    ▼
+PostgreSQL + pgvector
+```
+```
+Question
+   │
+   ▼
+Retrieve Relevant Chunks
+   │
+   ▼
+Build Context
+   │
+   ▼
+Qwen3
+   │
+   ▼
+Answer
+   │
+   ▼
+Display Answer + Sources
+```
+
+The goal is to keep generated answers grounded in the uploaded document rather than relying solely on the model's general knowledge.
 
 
-The document-related API endpoints are used by the frontend for retrieving documents and asking questions.
+## Notes
 
-Notes
+This project is primarily intended for local development.
 
-This project is intended for local development. Make sure the backend is running before using features that require API access.
+The backend must be running before using frontend features that communicate with the API.
+
+The LLM runs locally through Ollama, so an external LLM API is not required for the current setup.
+
+---
